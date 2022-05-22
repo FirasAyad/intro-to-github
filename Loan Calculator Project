@@ -1,0 +1,74 @@
+import math
+import sys
+import argparse
+def calc_diff_interest(P, i, n):
+    i = i / (12 * 100)
+    sum_payment = 0
+    for mon in range(1, n + 1):
+        result = math.ceil((P / n) + i * (P - (P * (mon - 1) / n)))
+        sum_payment = sum_payment + result
+        print(f"Month {mon}: payment is {result}")
+    over_payment = sum_payment - P
+    print()
+    print(f"Overpayment = {over_payment}")
+def calc_annuity_period(P, i, n):
+    i = i / (12 * 100)
+    b = math.ceil(P * (i * (math.pow(1 + i, n)) / (math.pow(1 + i, n) - 1)))
+    print(f'Your annuity payment = {b}!')
+    over_payment = (b * n) - P
+    print(f"Overpayment = {over_payment}")
+def calc_annuity_payment(P, p, i):
+    i = i / (12 * 100)
+    a = math.ceil(math.log(p / (p - i * P), (1 + i)))
+    year = a // 12
+    month = a % 12
+    over_payment = (a * p) - P
+    if month == 0:
+        print(f'it will be take {year} years to repay this loan!')
+    else:
+        print(f'it will be take {year} years and {month} months to repay this loan!')
+    print(f"Overpayment = {over_payment}")
+def calc_annuity_noprinc(pay, per, i):
+    i = i / (12 * 100)
+    c = pay / ((i * math.pow(1 + i, per)) / (math.pow(1 + i, per) - 1))
+    d = int(c)
+    over_payment = pay * per - d
+    print(f'Your loan principal = {d}!')
+    print(f"Overpayment = {over_payment}")
+parser = argparse.ArgumentParser()
+parser.add_argument("--type", choices=["annuity", "diff"])
+parser.add_argument("--principal")
+parser.add_argument("--payment")
+parser.add_argument("--periods")
+parser.add_argument("--interest")
+args = parser.parse_args()
+num_args = 0
+for key in vars(args):
+    if getattr(args, key):
+        num_args += 1
+if num_args < 4:
+    print("Incorrect parameters.")
+    sys.exit()
+type = args.type
+if type == "diff":
+    principal = int(args.principal)
+    periods = int(args.periods)
+    if args.interest:
+        interest = float(args.interest)
+        calc_diff_interest(principal, interest, periods)
+    else:
+        print("Incorrect parameters.")
+elif type == "annuity":
+    interest = float(args.interest)
+    if args.periods:
+        periods = int(args.periods)
+        if args.principal:
+            principal = int(args.principal)
+            calc_annuity_period(principal, interest, periods)
+        else:
+            payment = int(args.payment)
+            calc_annuity_noprinc(payment, periods, interest)
+    else:
+        principal = int(args.principal)
+        payment = int(args.payment)
+        calc_annuity_payment(principal, payment, interest)
